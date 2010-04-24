@@ -19,6 +19,12 @@ if (!class_exists("TrampPlugin")) {
     function addHeaderCode() { 
       echo '<!-- TrampPlugin Installed -->' . "\n";
     }
+    
+    function addContent($content='') {
+      $s_date = date(DATE_RFC822);
+      $content .= "<p>$s_date</p>";
+      return $content;
+    } 
 
   } // End class TrampPlugin
 
@@ -35,6 +41,7 @@ if (isset($tr_plugin)) {
   //Actions 
   add_action('wp_head', array(&$tr_plugin, 'addHeaderCode'), 1);
   //Filters 
+  add_filter('the_content', array(&$tr_plugin, 'addContent'));
 }
 
 // notes: be sure to use
