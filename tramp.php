@@ -26,6 +26,10 @@ if (!class_exists("TrampPlugin")) {
       return $content;
     } 
 
+    function authorUpperCase($author='') {
+      return strtoupper($author);
+    } 
+
   } // End class TrampPlugin
 
 }
@@ -42,6 +46,7 @@ if (isset($tr_plugin)) {
   add_action('wp_head', array(&$tr_plugin, 'addHeaderCode'), 1);
   //Filters 
   add_filter('the_content', array(&$tr_plugin, 'addContent'));
+  add_filter('get_comment_author', array(&$tr_plugin, 'authorUpperCase'));
 }
 
 // notes: be sure to use
