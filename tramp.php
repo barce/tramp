@@ -72,6 +72,7 @@ if (!class_exists("TrampPlugin")) {
         for ($i = 0; $i <= 6; $i++) {
           $my_date = date('Y-m-d', strtotime("$post_date -{$i} days"));
           $a_list = $trends->trends->{$my_date};
+          $a_names = array();
           foreach ($a_list as $trend) {
             $s_trend = str_replace("#", "", $trend->name);
             if (preg_match("/.*{$s_trend}.*/i", $s_original)) {
