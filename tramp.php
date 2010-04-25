@@ -35,6 +35,9 @@ if (!class_exists("TrampPlugin")) {
      */
     function addTrendFooter($content='') {
       $trampOptions = $this->getAdminOptions();
+      if ($trampOptions['add_content'] == 'false')
+        return $content;
+
       $s_original = $content;
 
       // for all words in the post create one string from two words 
