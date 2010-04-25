@@ -122,7 +122,7 @@ if (!class_exists("TrampPlugin")) {
     function getAdminOptions() {
       $trampAdminOptions = array('show_header' => 'true',
         'add_content'=> 'true',
-        'comment_author' => 'true',
+        'comment_author' => 'false',
         'by_week' => 'true',
         'content' => ''
       );
