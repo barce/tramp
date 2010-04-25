@@ -73,17 +73,19 @@ if (!class_exists("TrampPlugin")) {
           $my_date = date('Y-m-d', strtotime("$post_date -{$i} days"));
           $a_list = $trends->trends->{$my_date};
           $a_names = array();
-          foreach ($a_list as $trend) {
-            $s_trend = str_replace("#", "", $trend->name);
-            if (preg_match("/.*{$s_trend}.*/i", $s_original)) {
-              if (in_array(strtolower($trend->name), $a_names)) {
-                // don't print
-              } else {
-                $s_encoded_query = urlencode($trend->query);
-                $content .= "&raquo;<a href='http://search.twitter.com/search?q={$s_encoded_query}'>";
-                $content .= "{$trend->name}</a>&nbsp;\n";
+          if (is_array($a_list)) {
+            foreach ($a_list as $trend) {
+              $s_trend = str_replace("#", "", $trend->name);
+              if (preg_match("/.*{$s_trend}.*/i", $s_original)) {
+                if (in_array(strtolower($trend->name), $a_names)) {
+                  // don't print
+                } else {
+                  $s_encoded_query = urlencode($trend->query);
+                  $content .= "&raquo;<a href='http://search.twitter.com/search?q={$s_encoded_query}'>";
+                  $content .= "{$trend->name}</a>&nbsp;\n";
+                }
+                $a_names[] = strtolower($trend->name);
               }
-              $a_names[] = strtolower($trend->name);
             }
           }
         }
