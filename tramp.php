@@ -69,10 +69,10 @@ if (!class_exists("TrampPlugin")) {
       $content .= "<p>{$trampOptions['content']}</p>";
 
       if ($trampOptions['by_week'] == 'true') {
+        $a_names = array();
         for ($i = 0; $i <= 6; $i++) {
           $my_date = date('Y-m-d', strtotime("$post_date -{$i} days"));
           $a_list = $trends->trends->{$my_date};
-          $a_names = array();
           if (is_array($a_list)) {
             foreach ($a_list as $trend) {
               $s_trend = str_replace("#", "", $trend->name);
