@@ -12,13 +12,14 @@ if (!class_exists("TrampPlugin")) {
 
   class TrampPlugin {
     var $adminOptionsName = "TrampPluginAdminOptions";
+    var $adminUsersName   = "TrampPluginAdminUsersOptions";
     function __construct() {
       // construct a class
     }
 
     function init() { 
       $this->getAdminOptions(); 
-    }  
+    }
 
 
 
@@ -35,8 +36,17 @@ if (!class_exists("TrampPlugin")) {
     function addContent($content='') {
       $trampOptions = $this->getAdminOptions();
 
+      $json = wp_remote_get('http://search.twitter.com/trends.json');
+      $trends = json_decode($json['body']);
+
       $s_date = date(DATE_RFC822);
       $content .= "<p>$s_date &mdash; {$trampOptions['content']}</p>";
+      $a_list = $trends->trends;
+      $content .= "<ul>\n";
+      foreach ($a_list as $trend) {
+        $content .= "<li>{$trend->name}</li>\n";
+      }
+      $content .= "</ul>\n";
       return $content;
     } 
 
@@ -191,5 +201,6 @@ if (isset($tr_plugin)) {
 
 // notes: be sure to use
 // wp_remote_get()
+// wp_enqueue_script()
 // 
 ?>
