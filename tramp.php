@@ -31,7 +31,7 @@ if (!class_exists("TrampPlugin")) {
     }
     
     /*
-     * addTrendFooter -- adds an RFC822 date to the bottom of a post
+     * addTrendFooter -- adds a footer with Twitter trends that much the post
      */
     function addTrendFooter($content='') {
       $trampOptions = $this->getAdminOptions();
@@ -40,6 +40,16 @@ if (!class_exists("TrampPlugin")) {
       // for all words in the post create one string from two words 
       // for all words in the post create one string from three words 
       // for all words in the post create one string from four words 
+      preg_match_all('/\b[A-Za-z]+\b/', $s_original, $a_matches);
+      $a_words = $a_matches[0];
+      for ($i = 0; $i < count($a_words); $i++) {
+        $s_new_word = $a_words[$i] . $a_words[$i+1]; 
+        $s_original .= " $s_new_word ";
+        $s_new_word = $a_words[$i] . $a_words[$i+1] . $a_words[$i+2]; 
+        $s_original .= " $s_new_word ";
+        $s_new_word = $a_words[$i] . $a_words[$i+1] . $a_words[$i+3]; 
+        $s_original .= " $s_new_word ";
+      }
 
       $post_date = the_date('Y-m-d', '', '', FALSE);
 
@@ -53,26 +63,23 @@ if (!class_exists("TrampPlugin")) {
       $json = wp_remote_get($url);
       $trends = json_decode($json['body']);
 
-      $s_date = date(DATE_RFC822);
-
-      $content .= "<p>{$post_date} {$trampOptions['content']}</p>";
-      $my_date = '2010-04-18';
-
+      $content .= "<p>{$trampOptions['content']}</p>";
 
       if ($trampOptions['by_week'] == 'true') {
         for ($i = 0; $i <= 6; $i++) {
           $my_date = date('Y-m-d', strtotime("$post_date -{$i} days"));
           $a_list = $trends->trends->{$my_date};
           foreach ($a_list as $trend) {
-            if (preg_match("/.*{$trend->name}.*/i", $s_original)) {
-              if (in_array($trend->name, $a_names)) {
+            $s_trend = str_replace("#", "", $trend->name);
+            if (preg_match("/.*{$s_trend}.*/i", $s_original)) {
+              if (in_array(strtolower($trend->name), $a_names)) {
                 // don't print
               } else {
                 $s_encoded_query = urlencode($trend->query);
                 $content .= "&raquo;<a href='http://search.twitter.com/search?q={$s_encoded_query}'>";
                 $content .= "{$trend->name}</a>&nbsp;\n";
               }
-              $a_names[] = $trend->name;
+              $a_names[] = strtolower($trend->name);
             }
           }
         }
@@ -90,7 +97,8 @@ if (!class_exists("TrampPlugin")) {
       if ($trampOptions['by_week'] == 'false') {
         $a_list = $trends->trends;
         foreach ($a_list as $trend) {
-          if (preg_match("/.*{$trend->name}.*/i", $s_original)) {
+          $s_trend = str_replace("#", "", $trend->name);
+          if (preg_match("/.*{$s_trend}.*/i", $s_original)) {
             $content .= "&raquo;<a href='{$trend->url}'>{$trend->name}</a>&nbsp;\n";
           }
         }
