@@ -5,7 +5,7 @@ Plugin URI: http://github.com/barce/tramp
 Version: 0.1
 Author: Barce
 Author URI: http://twitter.com/barce
-Description: Tramp stands for traffic amplifier. This plug-in amplifies traffic on a WordPress about page by applying keywords that are trending from Twitter.com or Google's AdSense.
+Description: Tramp stands for traffic amplifier. This plug-in amplifies traffic on a WordPress about page by applying keywords that are trending from Twitter.com or Google's AdSense to a post.
 */
 
 if (!class_exists("TrampPlugin")) {
@@ -31,27 +31,80 @@ if (!class_exists("TrampPlugin")) {
     }
     
     /*
-     * addContent -- adds an RFC822 date to the bottom of a post
+     * addTrendFooter -- adds an RFC822 date to the bottom of a post
      */
-    function addContent($content='') {
+    function addTrendFooter($content='') {
       $trampOptions = $this->getAdminOptions();
+      $s_original = $content;
 
-      $json = wp_remote_get('http://search.twitter.com/trends.json');
+      // for all words in the post create one string from two words 
+      // for all words in the post create one string from three words 
+      // for all words in the post create one string from four words 
+
+      $post_date = the_date('Y-m-d', '', '', FALSE);
+
+      if ($trampOptions['by_week'] == 'true') {
+        $url = 'http://search.twitter.com/trends/weekly.json?date=' . 
+               $post_date;
+      } else {
+        $url = 'http://search.twitter.com/trends.json';
+      }
+
+      $json = wp_remote_get($url);
       $trends = json_decode($json['body']);
 
       $s_date = date(DATE_RFC822);
-      $content .= "<p>$s_date &mdash; {$trampOptions['content']}</p>";
-      $a_list = $trends->trends;
-      $content .= "<ul>\n";
-      foreach ($a_list as $trend) {
-        $content .= "<li>{$trend->name}</li>\n";
+
+      $content .= "<p>{$post_date} {$trampOptions['content']}</p>";
+      $my_date = '2010-04-18';
+
+
+      if ($trampOptions['by_week'] == 'true') {
+        for ($i = 0; $i <= 6; $i++) {
+          $my_date = date('Y-m-d', strtotime("$post_date -{$i} days"));
+          $a_list = $trends->trends->{$my_date};
+          foreach ($a_list as $trend) {
+            if (preg_match("/.*{$trend->name}.*/i", $s_original)) {
+              if (in_array($trend->name, $a_names)) {
+                // don't print
+              } else {
+                $s_encoded_query = urlencode($trend->query);
+                $content .= "&raquo;<a href='http://search.twitter.com/search?q={$s_encoded_query}'>";
+                $content .= "{$trend->name}</a>&nbsp;\n";
+              }
+              $a_names[] = $trend->name;
+            }
+          }
+        }
+/*
+        ob_start();
+        print_r($trends->trends->{$my_date});
+        print_r($trends->trends);
+        $o_this = ob_get_contents();
+        ob_end_clean();
+        $content .= "<pre>[[$o_this]]</pre>\n";
+*/
+
       }
-      $content .= "</ul>\n";
+
+      if ($trampOptions['by_week'] == 'false') {
+        $a_list = $trends->trends;
+        foreach ($a_list as $trend) {
+          if (preg_match("/.*{$trend->name}.*/i", $s_original)) {
+            $content .= "&raquo;<a href='{$trend->url}'>{$trend->name}</a>&nbsp;\n";
+          }
+        }
+      }
       return $content;
     } 
 
     function authorUpperCase($author='') {
-      return strtoupper($author);
+      $trampOptions = $this->getAdminOptions();
+      if ($trampOptions['comment_author'] == 'true') {
+        return strtoupper($author);
+      } else {
+        return $author;
+      }
     } 
 
 
@@ -59,6 +112,7 @@ if (!class_exists("TrampPlugin")) {
       $trampAdminOptions = array('show_header' => 'true',
         'add_content'=> 'true',
         'comment_author' => 'true',
+        'by_week' => 'true',
         'content' => ''
       );
       $trampOptions = get_option($this->adminOptionsName);
@@ -88,6 +142,9 @@ if (!class_exists("TrampPlugin")) {
         if (isset($_POST['trampAddContent'])) {
           $trampOptions['add_content'] = $_POST['trampAddContent'];
         }
+        if (isset($_POST['trampByWeek'])) {
+          $trampOptions['by_week'] = $_POST['trampByWeek'];
+        }
         if (isset($_POST['trampAuthor'])) {
           $trampOptions['comment_author'] = $_POST['trampAuthor'];
         }
@@ -112,6 +169,7 @@ if (!class_exists("TrampPlugin")) {
 <textarea name="trampContent" style="width: 80%; height: 100px;"><?php 
 _e(apply_filters('format_to_edit',$trampOptions['content']), 
 'TrampPlugin') ?></textarea> 
+
 <h3>Allow Comment Code in the Header?</h3> 
 <p>Selecting "No" will disable the comment code inserted in the header.</p> 
 <p><label for="trampHeader_yes"><input type="radio" 
@@ -122,6 +180,20 @@ for="trampHeader_no"><input type="radio" id="trampHeader_no"
 name="trampHeader" value="false" <?php if ($trampOptions['show_header'] 
 == "false") { _e('checked="checked"', "TrampPlugin"); }?>/> 
 No</label></p> 
+
+<h3>Get Twitter Trends by Week?</h3>
+<p>Selecting "No" will get most current trends.</p>
+<p><label for="trampByWeek_yes"><input type="radio" 
+id="trampByWeek_yes" name="trampByWeek" value="true" <?php if 
+($trampOptions['by_week'] == "true") { _e('checked="checked"', 
+"TrampPlugin"); }?> /> Yes</label>&nbsp;&nbsp;&nbsp;&nbsp;<label 
+for="trampByWeek_no"><input type="radio" id="trampByWeek_no" 
+name="trampByWeek" value="false" <?php if ($trampOptions['by_week'] 
+== "false") { _e('checked="checked"', "TrampPlugin"); }?>/> 
+No</label></p> 
+
+
+
 
 <h3>Allow Content Added to the End of a Post?</h3> 
 <p>Selecting "No" will disable the content from being added into the end of a 
@@ -195,7 +267,7 @@ if (isset($tr_plugin)) {
   add_action('wp_head', array(&$tr_plugin, 'addHeaderCode'), 1);
 
   //Filters 
-  add_filter('the_content', array(&$tr_plugin, 'addContent'));
+  add_filter('the_content', array(&$tr_plugin, 'addTrendFooter'));
   add_filter('get_comment_author', array(&$tr_plugin, 'authorUpperCase'));
 }
 
