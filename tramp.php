@@ -38,6 +38,7 @@ if (!class_exists("TrampPlugin")) {
       if ($trampOptions['add_content'] == 'false')
         return $content;
 
+		global $wp_query;
       $s_original = $content;
 
       // for all words in the post create one string from two words 
@@ -63,10 +64,23 @@ if (!class_exists("TrampPlugin")) {
         $url = 'http://search.twitter.com/trends.json';
       }
 
-      $json = wp_remote_get($url);
+		// cache data here
+		$post_ID = $wp_query->post->ID;
+		$json['body'] = get_post_meta($post_id, "tramp_$post_ID", 1);
+		if (strlen($json['body']) > 0) {
+		  // use cached data
+		} else {
+		  $json = wp_remote_get($url);
+		  $meta_key = "tramp_$post_ID";
+		   add_post_meta($post_id, $meta_key, $json['body'], 1);
+		}
       $trends = json_decode($json['body']);
 
+
+
       $content .= "<p>{$trampOptions['content']}</p>";
+		// $content .= "($post_ID)";
+		// $content .= "******<p>$s_original</p>*****";
 
       if ($trampOptions['by_week'] == 'true') {
         $a_names = array();

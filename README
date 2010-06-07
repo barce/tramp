@@ -2,3 +2,6 @@ Tramp stands for Traffic Amplifier. Traffic to twitter is amplified
 by showing relevant, Twitter trending links on your blog post.
 
 Install tramp in wp-content/plugins on your WordPress site.
+
+Caching is on by default, so it will tie posts based on the current 
+trends of the week.
