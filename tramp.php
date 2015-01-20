@@ -141,7 +141,11 @@ if (!class_exists("TrampPlugin")) {
         'add_content'=> 'true',
         'comment_author' => 'false',
         'by_week' => 'true',
-        'content' => ''
+        'content' => '',
+		  'consumer_key' => '',
+		  'consumer_secret' => '',
+		  'access_token' => '',
+		  'access_secret' => ''
       );
       $trampOptions = get_option($this->adminOptionsName);
       if (!empty($trampOptions)) {
@@ -179,6 +183,18 @@ if (!class_exists("TrampPlugin")) {
         if (isset($_POST['trampContent'])) {
           $trampOptions['content'] = apply_filters('content_save_pre', $_POST['trampContent']);
         }
+        if (isset($_POST['trampConsumerKey'])) {
+          $trampOptions['consumer_key'] = apply_filters('content_save_pre', $_POST['trampConsumerKey']);
+        }
+        if (isset($_POST['trampConsumerSecret'])) {
+          $trampOptions['consumer_secret'] = apply_filters('content_save_pre', $_POST['trampConsumerSecret']);
+        }
+        if (isset($_POST['trampAccessToken'])) {
+          $trampOptions['access_token'] = apply_filters('content_save_pre', $_POST['trampAccessToken']);
+        }
+        if (isset($_POST['trampAccessSecret'])) {
+          $trampOptions['access_secret'] = apply_filters('content_save_pre', $_POST['trampAccessSecret']);
+        }
         update_option($this->adminOptionsName, $trampOptions);
 
         echo  '<div class="updated"><p><strong>';
@@ -198,6 +214,12 @@ if (!class_exists("TrampPlugin")) {
 _e(apply_filters('format_to_edit',$trampOptions['content']), 
 'TrampPlugin') ?></textarea> 
 
+<h3>Twitter Credentials</h3>
+<p><label for="trampConsumerKey">Consumer Key:</label><input type="text" id="trampConsumerKey" name="trampConsumerKey" value="<?php print $trampOptions['consumer_key']; ?>"/></p>
+<p><label for="trampConsumerSecret">Consumer Secret:</label><input type="text" id="trampConsumerSecret" name="trampConsumerSecret" value="<?php print $trampOptions['consumer_secret']; ?>"/></p>
+<p><label for="trampAccessToken">Access Token:</label><input type="text" id="trampAccessToken" name="trampAccessToken" value="<?php print $trampOptions['access_token']; ?>"/></p>
+<p><label for="trampAccessSecret">Access Secret:</label><input type="text" id="trampAccessSecret" name="trampAccessSecret" value="<?php print $trampOptions['access_secret']; ?>"/></p>
+<br/>
 <h3>Allow Comment Code in the Header?</h3> 
 <p>Selecting "No" will disable the comment code inserted in the header.</p> 
 <p><label for="trampHeader_yes"><input type="radio" 
