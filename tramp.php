@@ -203,6 +203,11 @@ if (!class_exists("TrampPlugin")) {
 
       } // end if $_POST
 
+      if (isset($_POST['generate_oauth'])) {
+
+		} // end if $_POST for generate_oauth
+
+		
 ?>
 
 
@@ -219,6 +224,12 @@ _e(apply_filters('format_to_edit',$trampOptions['content']),
 <p><label for="trampConsumerSecret">Consumer Secret:</label><input type="text" id="trampConsumerSecret" name="trampConsumerSecret" value="<?php print $trampOptions['consumer_secret']; ?>"/></p>
 <p><label for="trampAccessToken">Access Token:</label><input type="text" id="trampAccessToken" name="trampAccessToken" value="<?php print $trampOptions['access_token']; ?>"/></p>
 <p><label for="trampAccessSecret">Access Secret:</label><input type="text" id="trampAccessSecret" name="trampAccessSecret" value="<?php print $trampOptions['access_secret']; ?>"/></p>
+<input type="submit" name="generate_oauth" 
+value="<?php _e('Generate OAuth', 'TrampPlugin') ?>" /></div> 
+
+
+
+
 <br/>
 <h3>Allow Comment Code in the Header?</h3> 
 <p>Selecting "No" will disable the comment code inserted in the header.</p> 
