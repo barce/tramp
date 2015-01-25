@@ -5,7 +5,7 @@ Plugin URI: http://github.com/barce/tramp
 Version: 0.1
 Author: Barce
 Author URI: http://twitter.com/barce
-Description: Tramp stands for traffic amplifier. This plug-in amplifies traffic on a WordPress about page by applying keywords that are trending from Twitter.com or Google's AdSense to a post.
+Description: Tramp stands for traffic amplifier. This plug-in amplifies traffic on a WordPress about page by applying keywords that are trending from Twitter.com. 
 */
 
 if (!class_exists("TrampPlugin")) {
