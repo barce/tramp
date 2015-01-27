@@ -211,6 +211,11 @@ if (!class_exists("TrampPlugin")) {
 ?>
 
 
+<style>
+#wpfooter {
+  visibility: hidden;
+}
+</style>
 <div class=wrap> 
 <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>"> 
 <h2>Tramp Plugin</h2> 
